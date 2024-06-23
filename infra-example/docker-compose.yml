@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./frontend/
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    ports:
+      - 3000:80
+    depends_on:
+      - backend
+    networks:
+      - pergher
+  backend:
+    build: ./backend/
+    container_name: backend
+    env_file:
+      - .env
+    depends_on: 
+      db:
+        condition: service_healthy
+    command: npm run start
+    networks:
+      - pergher
+  db:
+    image: postgres:alpine
+    ports: 
+      - 5432:5432
+    volumes:
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pergher"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+    env_file:
+      - .env
+    networks:
+      - pergher
+
+networks:
+  pergher:

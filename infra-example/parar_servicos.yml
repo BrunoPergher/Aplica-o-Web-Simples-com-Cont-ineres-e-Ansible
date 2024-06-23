@@ -1,0 +1,14 @@
+---
+- name: Stop and remove Docker containers, networks, and volumes
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+    project_path: /home/brunopergher/Desktop/infra-example
+
+  tasks:
+    - name: Take down Docker Compose services including volumes and networks
+      command: docker-compose -f {{ project_path }}/docker-compose.yml down
+      args:
+        chdir: "{{ project_path }}"

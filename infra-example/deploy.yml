@@ -1,0 +1,126 @@
+---
+- name: Deploy Docker container stack locally on Linux
+  hosts: localhost
+  connection: local
+  gather_facts: yes
+
+  vars_files:
+    - secrets.yml
+
+  vars:
+    project_path: /home/brunopergher/Desktop/infra-example
+    backup_compose_file: "{{ project_path }}/docker-compose.backup.yml"
+
+  tasks:
+    - name: Backup current docker-compose state
+      command: docker-compose -f {{ project_path }}/docker-compose.yml config > {{ backup_compose_file }}
+      args:
+        chdir: "{{ project_path }}"
+      notify: Print backup completion
+
+    - name: Generate .env file
+      template:
+        src: templates/env.j2
+        dest: "{{ project_path }}/.env"
+      register: env_generated
+      notify: Restart services if .env changed
+
+    - name: Check if Docker is installed
+      command: docker --version
+      register: docker_installed
+      ignore_errors: true
+
+    - name: Install Docker if not present
+      apt:
+        name: docker.io
+        state: latest
+      when: docker_installed.rc | default(0) != 0
+      notify: Docker installation completed
+
+    - name: Check if Docker Compose is installed
+      command: docker-compose --version
+      register: docker_compose_installed
+      ignore_errors: true
+
+    - name: Install Docker Compose if not present
+      apt:
+        name: docker-compose
+        state: latest
+      when: docker_compose_installed.rc | default(0) != 0
+      notify: Docker Compose installation completed
+
+    - name: Start Docker Compose services
+      command: docker-compose -f {{ project_path }}/docker-compose.yml up -d
+      args:
+        chdir: "{{ project_path }}"
+      when: not env_generated.changed
+      register: deployment_result
+      ignore_errors: true
+      notify: Verify services
+
+    - name: Conditionally restart Docker services if .env changed
+      command: docker-compose -f {{ project_path }}/docker-compose.yml up -d --force-recreate
+      args:
+        chdir: "{{ project_path }}"
+      when: env_generated.changed
+      register: deployment_result
+      ignore_errors: true
+      notify: Verify services
+
+    - name: Capture logs of all containers
+      command: docker-compose -f {{ project_path }}/docker-compose.yml logs
+      args:
+        chdir: "{{ project_path }}"
+      register: docker_logs
+      ignore_errors: true
+      notify: Print container logs
+
+    - name: Health check for Docker containers
+      command: "{{ project_path }}/check_health.sh"
+      register: health_check
+      ignore_errors: true
+      notify: Print health check results
+
+  handlers:
+    - name: Restart services if .env changed
+      command: docker-compose -f {{ project_path }}/docker-compose.yml restart
+      args:
+        chdir: "{{ project_path }}"
+
+    - name: Docker installation completed
+      debug:
+        msg: "Docker installation has completed successfully."
+
+    - name: Docker Compose installation completed
+      debug:
+        msg: "Docker Compose installation has completed successfully."
+
+    - name: Print backup completion
+      debug:
+        msg: "Backup of the current docker-compose state completed successfully."
+
+    - name: Verify services
+      command: docker-compose -f {{ project_path }}/docker-compose.yml ps
+      args:
+        chdir: "{{ project_path }}"
+      register: compose_status
+      failed_when: compose_status.rc != 0
+      changed_when: false
+
+    - name: Print container logs
+      debug:
+        var: docker_logs.stdout_lines
+
+    - name: Print health check results
+      debug:
+        msg: "{{ health_check.stdout_lines }}"
+
+    - name: Rollback if deployment failed
+      command: docker-compose -f {{ backup_compose_file }} up -d
+      args:
+        chdir: "{{ project_path }}"
+      when: deployment_result.rc | default(0) != 0 or health_check.rc | default(0) != 0
+
+    - name: Print rollback result
+      debug:
+        msg: "Rollback was initiated due to deployment failure."
