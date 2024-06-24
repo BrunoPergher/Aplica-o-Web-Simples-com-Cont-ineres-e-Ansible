@@ -58,8 +58,8 @@ O playbook deploy.yml é utilizado para configurar e gerenciar o stack Docker de
 **Detalhe importante:** No projeto temos um arquivo chamado secrets.yml nele foi declarado as variaveis de ambiente e criptografado com o ansible-vault, e declarando uma chave secreta assim para rodar o ansible é necessario saber a chave secreta.
 
 ### Check if Docker is installed
-Função: Executa o comando docker --version para verificar se o Docker está instalado no sistema.
-Importância: Garante que o Docker, uma dependência crítica para o funcionamento dos contêineres, está disponível antes de tentar operações que o requerem.
+**Função**: Executa o comando docker --version para verificar se o Docker está instalado no sistema.
+**Importância**: Garante que o Docker, uma dependência crítica para o funcionamento dos contêineres, está disponível antes de tentar operações que o requerem.
 
 ###  Install Docker if not present
 **Função**: Instala o Docker usando o gerenciador de pacotes apt caso não esteja presente (condição verificada pela task anterior).
@@ -91,38 +91,38 @@ Importância: Garante que o Docker, uma dependência crítica para o funcionamen
 
 ## Handles
 ### Restart services if .env changed
-Função: Reinicia os serviços Docker através do comando docker-compose restart. Este handler é chamado quando o arquivo .env é modificado, garantindo que as novas variáveis de ambiente sejam aplicadas.
-Importância: Essencial para assegurar que quaisquer mudanças no arquivo de configuração do ambiente sejam refletidas nos serviços em execução sem a necessidade de reiniciar todo o sistema manualmente.
+**Função**: Reinicia os serviços Docker através do comando docker-compose restart. Este handler é chamado quando o arquivo .env é modificado, garantindo que as novas variáveis de ambiente sejam aplicadas.
+**Importância**: Essencial para assegurar que quaisquer mudanças no arquivo de configuração do ambiente sejam refletidas nos serviços em execução sem a necessidade de reiniciar todo o sistema manualmente.
 
 ### Docker installation completed
-Função: Exibe uma mensagem indicando que a instalação do Docker foi concluída com sucesso.
-Importância: Fornece feedback visual no log de execução do playbook, útil para verificação e diagnósticos durante a instalação ou manutenção.
+**Função**: Exibe uma mensagem indicando que a instalação do Docker foi concluída com sucesso.
+**Importância**: Fornece feedback visual no log de execução do playbook, útil para verificação e diagnósticos durante a instalação ou manutenção.
 
 ### Docker Compose installation completed
-Função: Exibe uma mensagem informando que o Docker Compose foi instalado corretamente.
-Importância: Similar ao handler anterior, ajuda na verificação do processo de instalação e assegura que as ferramentas necessárias estão prontas para uso.
+**Função**: Exibe uma mensagem informando que o Docker Compose foi instalado corretamente.
+**Importância**: Similar ao handler anterior, ajuda na verificação do processo de instalação e assegura que as ferramentas necessárias estão prontas para uso.
 
 ### Print backup completion
-Função: Exibe uma mensagem confirmando que o backup da configuração do Docker Compose foi realizado com sucesso.
-Importância: Garante que o administrador do sistema esteja ciente de que o estado anterior da configuração foi salvo, permitindo uma recuperação rápida em caso de falhas subsequentes.
+**Função**: Exibe uma mensagem confirmando que o backup da configuração do Docker Compose foi realizado com sucesso.
+**Importância**: Garante que o administrador do sistema esteja ciente de que o estado anterior da configuração foi salvo, permitindo uma recuperação rápida em caso de falhas subsequentes.
 
 ### Verify services
-Função: Executa o comando docker-compose ps para verificar o estado dos serviços gerenciados pelo Docker Compose.
-Importância: Permite monitorar se todos os serviços estão em execução conforme esperado e identificar rapidamente quaisquer problemas.
+**Função**: Executa o comando docker-compose ps para verificar o estado dos serviços gerenciados pelo Docker Compose.
+**Importância**: Permite monitorar se todos os serviços estão em execução conforme esperado e identificar rapidamente quaisquer problemas.
 
 ### Print container logs
-Função: Exibe os logs coletados dos contêineres Docker, utilizando as informações registradas na variável docker_logs.
-Importância: Fornece uma visão detalhada das atividades dos contêineres, essencial para diagnóstico de problemas e monitoramento do comportamento da aplicação.
+**Função**: Exibe os logs coletados dos contêineres Docker, utilizando as informações registradas na variável docker_logs.
+**Importância**: Fornece uma visão detalhada das atividades dos contêineres, essencial para diagnóstico de problemas e monitoramento do comportamento da aplicação.
 
 ### Print health check results
-Função: Exibe os resultados da verificação de saúde dos contêineres, usando as saídas registradas na variável health_check.
-Importância: Informa sobre o estado operacional dos contêineres, crucial para garantir que a aplicação esteja funcional e responder prontamente a quaisquer falhas.
+**Função**: Exibe os resultados da verificação de saúde dos contêineres, usando as saídas registradas na variável health_check.
+**Importância**: Informa sobre o estado operacional dos contêineres, crucial para garantir que a aplicação esteja funcional e responder prontamente a quaisquer falhas.
 
 ### Rollback if deployment failed
-Função: Executa um comando docker-compose up -d usando o arquivo backup_compose_file para restaurar os contêineres à sua configuração anterior se o deployment atual falhar.
-Importância: Um mecanismo de segurança crítico que permite ao sistema retornar rapidamente a um estado conhecido e estável em caso de erros no deployment atual.
+**Função**: Executa um comando docker-compose up -d usando o arquivo backup_compose_file para restaurar os contêineres à sua configuração anterior se o deployment atual falhar.
+**Importância**: Um mecanismo de segurança crítico que permite ao sistema retornar rapidamente a um estado conhecido e estável em caso de erros no deployment atual.
 
 ### Print rollback result
-Função: Exibe uma mensagem indicando que o rollback foi iniciado devido à falha no deployment.
-Importância: Fornece confirmação visual de que o processo de rollback foi acionado, ajudando na compreensão das ações do sistema durante falhas.
+**Função**: Exibe uma mensagem indicando que o rollback foi iniciado devido à falha no deployment.
+**Importância**: Fornece confirmação visual de que o processo de rollback foi acionado, ajudando na compreensão das ações do sistema durante falhas.
 
