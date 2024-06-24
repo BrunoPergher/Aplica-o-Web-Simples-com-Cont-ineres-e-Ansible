@@ -3,6 +3,25 @@
 ## Visão Geral
 Este projeto consiste em uma aplicação simples destinada ao registro e listagem de compras. O sistema permite aos usuários cadastrar novas compras e visualizar uma lista de compras já cadastradas. A aplicação é construída utilizando uma stack moderna e robusta que inclui Docker, Docker Compose, Nginx, Ansible e Node.js.
 
+## Estrutura Dos Arquivos
+Frontend: Contém o código HTML, CSS e JavaScript. Servido pelo Nginx.
+Backend: Aplicação Node.js que lida com a lógica do servidor, incluindo o gerenciamento de banco de dados.
+Database: Usa PostgreSQL para armazenamento de dados.
+
+## Pré-requisitos
+Docker
+Docker Compose
+Ansible
+
+## Como Rodar
+Se o arquivo secrets já estiver criptografado e você sabe a chave secreta siga para o próximo passo. caso o contrario utilize o comando "ansible-vault encrypt secrets.yml" para ciptografar o arquivo secrets.yml e definir a chave secreta.
+
+com as variaveis de ambiente salvas no arquivo secrets.yml rode:
+ansible-playbook deploy.yml --ask-vault-pass
+
+passe a chave secreta quando for pedida, e apenas aguarde todo o processor de deploy ocorrer, ficar atento quanto a logs e possiveis erros que apareceçam ao rodar o ansible é importante.
+
+
 ## Tecnologias
 ### Docker
 Utilizamos Docker para containerizar e gerenciar os componentes da nossa aplicação de maneira isolada e eficiente.
