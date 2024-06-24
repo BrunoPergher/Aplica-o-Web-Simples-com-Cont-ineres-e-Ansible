@@ -23,4 +23,25 @@ Node.js é o ambiente de execução do lado do servidor que gerencia a lógica d
 PostgreSQL é o nosso serviço de banco de dados onde vai armazenar as informações cadastradas.
 
 ## Infraestrutura
+A infraestrutura da aplicação consiste em três serviços principais: frontend, backend e banco de dados, todos orquestrados pelo Docker Compose. Cada serviço é encapsulado em um contêiner Docker e todos os contêineres compartilham uma rede comum chamada **pergher**. Apenas o frontend é acessível externamente através de uma porta exposta. Agora vou explicar mais detalhadamente cada parte dessa iinfraestrutura.
 
+### FrontEnd
+**Tecnologia**: Nginx
+**Dockerfile**: Baseado na imagem nginx:1.16.0-alpine. O diretório de trabalho é configurado para /usr/share/nginx/html e o conteúdo estático é servido a partir daqui.
+Configuração: O nginx.conf é ajustado para servir páginas estáticas e rotear solicitações para o backend através de um proxy dentro no ngnx.conf.
+Portas: O serviço expõe a porta 3000 externamente, mapeada para a porta 80 do contêiner.
+Volumes: Um volume é montado para sincronizar o diretório local ./frontend com o diretório de trabalho no contêiner, permitindo atualizações dinâmicas do conteúdo estático.
+
+### Backend
+Tecnologia: Node.js
+Dockerfile: Usa a imagem base node:20. Os pacotes são instalados com npm install e o comando npm run start é usado para iniciar o servidor.
+Dependências: Dependente do serviço de banco de dados estar saudável antes de iniciar, através do health check dentro do compose.
+Rede: Parte da rede pergher, mas sem portas expostas externamente, acessível apenas internamente dentro da rede.
+
+### Banco De Dados
+Tecnologia: PostgreSQL (imagem postgres:alpine)
+Configuração: Usa um arquivo de ambiente .env (arquivo esse gerado pelo ansible usando ansible-vault) para configurações como usuário, senha e nome do banco de dados. Um script de schema (schema.sql) é montado para inicializar o banco de dados.
+Health Check: Configurado para verificar se o banco de dados está pronto para conexões antes de considerar o serviço como saudável.
+Portas: A porta 5432 é exposta, permitindo conexões ao banco de dados.
+
+## Ansible
